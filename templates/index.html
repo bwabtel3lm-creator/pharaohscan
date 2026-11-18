@@ -1323,6 +1323,397 @@
             .camera-layout.result-open .camera-hint,
             .camera-layout.result-open .capture-dock { display: none; }
         }
+
+        /* ══════════════════════════════════════════════════════════════════
+           AUTH MODAL, ACCOUNT PILL & ADMIN DASHBOARD (LUXURY PHARAONIC UI)
+        ══════════════════════════════════════════════════════════════════ */
+        .account-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px 6px 8px;
+            border-radius: 999px;
+            background: rgba(216, 183, 128, 0.12);
+            border: 1px solid rgba(216, 183, 128, 0.35);
+            color: var(--paper);
+            font-size: 12.5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .account-pill:hover {
+            background: rgba(216, 183, 128, 0.22);
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+        .account-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--bronze));
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 12px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+        .role-chip {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .role-chip.admin { background: rgba(216, 183, 128, 0.25); color: #f6d89c; border: 1px solid rgba(216, 183, 128, 0.55); }
+        .role-chip.user { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+        .role-chip.visitor { background: rgba(255, 255, 255, 0.1); color: #d6cfc4; border: 1px solid rgba(255, 255, 255, 0.22); }
+
+        /* Auth Backdrop & Card */
+        .auth-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            background: radial-gradient(circle at top, rgba(44, 35, 22, 0.92), rgba(12, 11, 9, 0.96));
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: linear-gradient(165deg, #241f18 0%, #171410 100%);
+            border: 1px solid rgba(216, 183, 128, 0.35);
+            border-radius: 22px;
+            padding: 28px 26px 24px;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+            position: relative;
+            color: var(--paper);
+        }
+        .auth-close {
+            position: absolute;
+            top: 16px;
+            inset-inline-end: 16px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: grid;
+            place-items: center;
+            color: #bdb4a7;
+        }
+        .auth-close:hover { background: rgba(255, 255, 255, 0.14); color: var(--gold); }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .auth-header img {
+            height: 44px;
+            margin: 0 auto 10px;
+            filter: drop-shadow(0 4px 12px rgba(216, 183, 128, 0.25));
+        }
+        .auth-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .auth-header p {
+            font-size: 12.5px;
+            color: #bdb4a7;
+        }
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.32);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .auth-tab {
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #a89f91;
+            transition: all 0.2s;
+        }
+        .auth-tab.active {
+            background: linear-gradient(135deg, var(--gold), var(--bronze));
+            color: var(--ink);
+            box-shadow: 0 4px 14px rgba(216, 183, 128, 0.25);
+        }
+        .auth-field {
+            margin-bottom: 13px;
+        }
+        .auth-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d6cfc4;
+            margin-bottom: 5px;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(216, 183, 128, 0.22);
+            color: var(--paper);
+            font-size: 13.5px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.09);
+        }
+        .auth-submit-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--gold), var(--bronze));
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 6px;
+            box-shadow: 0 10px 24px rgba(175, 125, 73, 0.3);
+            transition: transform 0.18s, filter 0.18s;
+        }
+        .auth-submit-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0 12px;
+            color: #8f8679;
+            font-size: 11.5px;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .visitor-btn {
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(216, 183, 128, 0.4);
+            color: var(--paper);
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .visitor-btn:hover {
+            background: rgba(216, 183, 128, 0.12);
+            border-style: solid;
+            color: var(--gold);
+        }
+        .auth-error {
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 9px 12px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            margin-bottom: 12px;
+        }
+        .demo-hint {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(216, 183, 128, 0.07);
+            border: 1px solid rgba(216, 183, 128, 0.18);
+            font-size: 11.5px;
+            color: #cfc6b8;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .demo-quick-btn {
+            padding: 4px 9px;
+            border-radius: 7px;
+            background: rgba(216, 183, 128, 0.18);
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .demo-quick-btn:hover { background: rgba(216, 183, 128, 0.32); }
+
+        /* ── Admin Dashboard Luxury Layout ── */
+        .admin-shell {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 26px 24px 60px;
+            color: var(--paper);
+        }
+        .admin-hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 24px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(216, 183, 128, 0.16), rgba(33, 29, 22, 0.92));
+            border: 1px solid rgba(216, 183, 128, 0.32);
+            margin-bottom: 22px;
+        }
+        .admin-hero h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .admin-hero p { font-size: 13px; color: #cfc6b8; }
+        .admin-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .admin-kpi-card {
+            background: rgba(33, 29, 22, 0.86);
+            border: 1px solid rgba(216, 183, 128, 0.2);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .admin-kpi-label { font-size: 12px; color: #b5ab9c; font-weight: 500; }
+        .admin-kpi-val { font-size: 28px; font-weight: 700; color: var(--gold); line-height: 1.1; }
+        .admin-kpi-sub { font-size: 11px; color: #8f8679; }
+
+        .admin-subtabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+        }
+        .admin-subtab {
+            padding: 9px 16px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #c5bdb0;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .admin-subtab.active {
+            background: linear-gradient(135deg, var(--gold), var(--bronze));
+            color: var(--ink);
+            border-color: transparent;
+        }
+        .admin-badge-count {
+            padding: 1px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.28);
+            color: inherit;
+        }
+
+        .admin-panel {
+            background: rgba(26, 22, 17, 0.9);
+            border: 1px solid rgba(216, 183, 128, 0.18);
+            border-radius: 18px;
+            padding: 18px;
+        }
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .admin-item-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+        .admin-item-card:hover { border-color: rgba(216, 183, 128, 0.35); }
+        .admin-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-accept {
+            padding: 7px 14px;
+            border-radius: 9px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6ee7b7;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .btn-accept:hover { background: rgba(16, 185, 129, 0.35); }
+        .btn-reject {
+            padding: 7px 14px;
+            border-radius: 9px;
+            background: rgba(239, 68, 68, 0.16);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #fca5a5;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .btn-reject:hover { background: rgba(239, 68, 68, 0.3); }
+        .btn-neutral {
+            padding: 7px 12px;
+            border-radius: 9px;
+            background: rgba(216, 183, 128, 0.14);
+            border: 1px solid rgba(216, 183, 128, 0.35);
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+        .status-pill.pending { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.45); }
+        .status-pill.approved { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+        .status-pill.rejected { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); }
+        .admin-cand-thumb {
+            width: 66px;
+            height: 66px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid rgba(216, 183, 128, 0.3);
+            flex-shrink: 0;
+        }
+        @media (max-width: 900px) {
+            .admin-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .admin-shell { padding: 16px 14px 48px; }
+        }
     </style>
 </head>
 
@@ -1340,6 +1731,11 @@
                 <button class="header-context" onclick="openPlaceSelector()" id="place-context-btn">
                     <svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
                     <span id="place-context-name">القاهرة التاريخية</span>
+                </button>
+                <button class="account-pill" onclick="openAuthModal()" id="account-pill-btn">
+                    <span class="account-avatar" id="account-avatar">ز</span>
+                    <span id="account-name">زائر</span>
+                    <span class="role-chip visitor" id="account-role-chip">Visitor</span>
                 </button>
                 <button class="lang-btn" onclick="toggleLanguage()" id="lang-switch-btn">EN</button>
             </div>
@@ -1367,6 +1763,9 @@
 
     <!-- Modal Dialog Host -->
     <div id="modal" hidden></div>
+
+    <!-- Auth & Role Selection Host -->
+    <div id="auth-host" hidden></div>
 
     <!-- Tracked AR Overlay Host -->
     <div id="ar-overlay" class="ar-overlay" hidden>
@@ -1404,11 +1803,21 @@
             cube: '<path d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10M7.5 4.5l9 5"/>',
             plus: '<path d="M12 5v14M5 12h14"/>',
             download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
-            pause: '<path d="M8 4v16M16 4v16"/>'
+            pause: '<path d="M8 4v16M16 4v16"/>',
+            shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+            logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
         };
 
         const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.camera}</svg>`;
         const $id = id => document.getElementById(id);
+
+        /* ── Auth & Admin State ── */
+        let currentUser = {{ current_user_json | safe if current_user_json else '{"user_id":"visitor","username":"Visitor","full_name":"زائر / Visitor","role":"visitor"}' }};
+        let authMode = 'login';
+        let adminTab = 'activity';
+        let adminPostFilter = 'all';
+        let adminOverview = null;
+        let adminLoading = false;
 
         /* ── State Management ── */
         let currentLang = localStorage.getItem('atharna_lang') || 'ar';
@@ -1484,6 +1893,21 @@
         }
 
         /* ── Navigation Shell Render ── */
+        function updateAccountPill() {
+            const avatar = $id('account-avatar');
+            const nameEl = $id('account-name');
+            const chip = $id('account-role-chip');
+            if (!avatar || !nameEl || !chip) return;
+            const role = currentUser?.role || 'visitor';
+            const display = role === 'visitor'
+                ? T('زائر', 'Visitor')
+                : (currentUser.full_name || currentUser.username || 'User');
+            nameEl.textContent = display;
+            avatar.textContent = display.trim().charAt(0).toUpperCase();
+            chip.className = `role-chip ${role}`;
+            chip.textContent = role === 'admin' ? T('أدمن', 'Admin') : (role === 'user' ? T('مستخدم', 'User') : T('زائر', 'Visitor'));
+        }
+
         function renderNav() {
             const navItems = [
                 ['discover', 'compass', 'اكتشف', 'Explore'],
@@ -1491,6 +1915,9 @@
                 ['stories', 'book', 'حكايات', 'Stories'],
                 ['memories', 'user', 'ذكرياتي', 'Memories']
             ];
+            if (currentUser?.role === 'admin') {
+                navItems.push(['admin', 'shield', 'لوحة التحكم', 'Admin']);
+            }
 
             const html = navItems.map(([id, ic, ar, en]) => `
                 <button class="${currentView === id ? 'active' : ''}" 
@@ -1503,6 +1930,7 @@
 
             $id('desktop-nav').innerHTML = html;
             $id('mobile-nav').innerHTML = html;
+            updateAccountPill();
 
             const placeObj = getActivePlace();
             $id('place-context-name').textContent = T(placeObj.name_ar || placeObj.name, placeObj.name);
@@ -1516,12 +1944,19 @@
         /* ── Navigation Controller ── */
         function navigate(dest) {
             closeModal();
+            if (dest === 'admin' && currentUser?.role !== 'admin') {
+                openAuthModal('login');
+                return;
+            }
             if (dest !== 'camera') {
                 stopCameraStream();
             } else if (!mediaStream && !uploadedPhotoUrl) {
                 initCameraStream();
             }
             currentView = dest;
+            if (dest === 'admin') {
+                loadAdminOverview();
+            }
             renderWorkspace();
         }
 
@@ -1540,6 +1975,7 @@
             else if (currentView === 'discover') ws.innerHTML = renderDiscoverView();
             else if (currentView === 'stories') ws.innerHTML = renderStoriesView();
             else if (currentView === 'memories') ws.innerHTML = renderMemoriesView();
+            else if (currentView === 'admin') ws.innerHTML = renderAdminView();
 
             if (currentView === 'camera' && isCameraActive && mediaStream) {
                 const vid = $id('camera-feed');
@@ -2462,10 +2898,17 @@
                 return;
             }
 
+            if (currentUser?.role === 'visitor') {
+                closeModal();
+                showToast(T('سجّل الدخول أو أنشئ حساباً أولاً لنشر حكايتك!', 'Please register or login first to publish your story!'));
+                openAuthModal('register');
+                return;
+            }
+
             const curPlace = getActivePlace();
             const postData = {
                 content: text,
-                author: T('زائر أثرنا', 'Atharna Visitor'),
+                author: currentUser?.full_name || currentUser?.username || T('مستكشف أثرنا', 'Atharna Explorer'),
                 object_id: currentResult?.object?.object_id || 'O001',
                 location_id: currentResult?.object?.location_id || curPlace.location_id || 'L003',
                 location_name: attachedObject || T(curPlace.name_ar || curPlace.name, curPlace.name),
@@ -2479,16 +2922,27 @@
                     body: JSON.stringify(postData)
                 });
                 const savedPost = await res.json();
+                if (res.status === 403 && savedPost.require_auth) {
+                    closeModal();
+                    showToast(T('يرجى تسجيل الدخول لنشر حكايتك.', 'Please login to publish your story.'));
+                    openAuthModal('login');
+                    return;
+                }
+                if (!res.ok) {
+                    showToast(savedPost.error || T('حدث خطأ أثناء النشر.', 'Failed to publish story.'));
+                    return;
+                }
                 communityPosts.unshift(savedPost.post || postData);
                 closeModal();
-                showToast(T('تم نشر حكايتك ومشاركتها مع الزوار!', 'Story published successfully!'));
+                if (savedPost.status === 'pending') {
+                    showToast(T('تم إرسال حكايتك وهي الآن بانتظار موافقة الأدمن!', 'Story submitted! Waiting for admin approval.'));
+                } else {
+                    showToast(T('تم نشر حكايتك ومشاركتها مع الزوار!', 'Story published successfully!'));
+                }
                 if (currentView === 'stories') renderWorkspace();
             } catch (err) {
                 console.error('Failed to post story:', err);
-                communityPosts.unshift(postData);
-                closeModal();
-                showToast(T('تم حفظ الحكاية محلياً.', 'Story saved locally.'));
-                if (currentView === 'stories') renderWorkspace();
+                showToast(T('تعذر الاتصال بالسيرفر.', 'Could not reach server.'));
             }
         }
 
@@ -2902,6 +3356,553 @@
         }
 
         /* ══════════════════════════════════════════════════════════════════
+           AUTHENTICATION, ROLE SELECTION & ADMIN DASHBOARD
+        ══════════════════════════════════════════════════════════════════ */
+        function openAuthModal(mode = 'login') {
+            authMode = mode;
+            renderAuthModal();
+        }
+
+        function closeAuthModal() {
+            const host = $id('auth-host');
+            if (host) {
+                host.hidden = true;
+                host.innerHTML = '';
+            }
+        }
+
+        function switchAuthTab(mode) {
+            authMode = mode;
+            renderAuthModal();
+        }
+
+        function fillDemoCreds(u, p) {
+            authMode = 'login';
+            renderAuthModal();
+            const idInput = $id('auth-identifier');
+            const pwInput = $id('auth-password');
+            if (idInput) idInput.value = u;
+            if (pwInput) pwInput.value = p;
+        }
+
+        function renderAuthModal(errorMsg = '') {
+            const host = $id('auth-host');
+            if (!host) return;
+            const isLoggedIn = currentUser && currentUser.role !== 'visitor';
+
+            if (isLoggedIn) {
+                const roleLabel = currentUser.role === 'admin' ? T('مدير المنصة (Admin)', 'Platform Admin') : T('مستخدم مسجل (User)', 'Registered User');
+                host.innerHTML = `
+                    <div class="auth-backdrop" onclick="if(event.target===this)closeAuthModal()">
+                        <section class="auth-card" role="dialog" aria-modal="true">
+                            <button class="auth-close" onclick="closeAuthModal()" aria-label="${T('إغلاق', 'Close')}">${icon('close')}</button>
+                            <div class="auth-header">
+                                <img src="/static/images/Atharna-logo.png" alt="Atharna">
+                                <h2>${escapeHtml(currentUser.full_name || currentUser.username)}</h2>
+                                <p>@${escapeHtml(currentUser.username)} · <span class="role-chip ${currentUser.role}">${roleLabel}</span></p>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(216,183,128,0.18);border-radius:14px;padding:14px;margin-bottom:16px;font-size:13px;color:#d6cfc4;">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                                    <span>${T('البريد الإلكتروني', 'Email')}</span>
+                                    <strong style="color:var(--gold)">${escapeHtml(currentUser.email || '—')}</strong>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;">
+                                    <span>${T('الصلاحيات', 'Permissions')}</span>
+                                    <strong>${currentUser.role === 'admin' ? T('كاملة + لوحة التحكم', 'Full + Admin Dashboard') : T('مسح + نشر حكايات', 'Scan + Publish Stories')}</strong>
+                                </div>
+                            </div>
+                            ${currentUser.role === 'admin' ? `
+                                <button class="auth-submit-btn" onclick="closeAuthModal();navigate('admin');" style="margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                                    ${icon('shield')} <span>${T('فتح لوحة تحكم الأدمن', 'Open Admin Dashboard')}</span>
+                                </button>
+                            ` : ''}
+                            <button class="visitor-btn" onclick="logoutAccount()">
+                                ${icon('logout')} <span>${T('تسجيل الخروج (التحويل لزائر)', 'Sign Out (Switch to Visitor)')}</span>
+                            </button>
+                        </section>
+                    </div>
+                `;
+                host.hidden = false;
+                return;
+            }
+
+            host.innerHTML = `
+                <div class="auth-backdrop" onclick="if(event.target===this)closeAuthModal()">
+                    <section class="auth-card" role="dialog" aria-modal="true">
+                        <button class="auth-close" onclick="closeAuthModal()" aria-label="${T('إغلاق', 'Close')}">${icon('close')}</button>
+                        <div class="auth-header">
+                            <img src="/static/images/Atharna-logo.png" alt="Atharna">
+                            <h2>${T('مرحباً بك في أثرنا', 'Welcome to Atharna')}</h2>
+                            <p>${T('اختر طريقة الدخول لاستكشاف التراث المصري بالذكاء الاصطناعي', 'Sign in, create an account, or explore as a visitor')}</p>
+                        </div>
+
+                        <div class="auth-tabs">
+                            <button class="auth-tab ${authMode === 'login' ? 'active' : ''}" onclick="switchAuthTab('login')">
+                                ${T('تسجيل الدخول', 'Sign In')}
+                            </button>
+                            <button class="auth-tab ${authMode === 'register' ? 'active' : ''}" onclick="switchAuthTab('register')">
+                                ${T('حساب جديد', 'Register')}
+                            </button>
+                        </div>
+
+                        ${errorMsg ? `<div class="auth-error">${escapeHtml(errorMsg)}</div>` : ''}
+
+                        <form onsubmit="submitAuthForm(event)">
+                            ${authMode === 'register' ? `
+                                <div class="auth-field">
+                                    <label>${T('الاسم الكامل', 'Full Name')}</label>
+                                    <input class="auth-input" id="auth-fullname" type="text" required placeholder="${T('مثال: أحمد محمد', 'e.g. Ahmed Mohamed')}">
+                                </div>
+                                <div class="auth-field">
+                                    <label>${T('اسم المستخدم (Username)', 'Username')}</label>
+                                    <input class="auth-input" id="auth-username" type="text" required minlength="3" placeholder="ahmed_explorer">
+                                </div>
+                                <div class="auth-field">
+                                    <label>${T('البريد الإلكتروني', 'Email')}</label>
+                                    <input class="auth-input" id="auth-email" type="email" required placeholder="name@example.com">
+                                </div>
+                            ` : `
+                                <div class="auth-field">
+                                    <label>${T('اسم المستخدم أو البريد', 'Username or Email')}</label>
+                                    <input class="auth-input" id="auth-identifier" type="text" required placeholder="admin / explorer">
+                                </div>
+                            `}
+                            <div class="auth-field">
+                                <label>${T('كلمة المرور', 'Password')}</label>
+                                <input class="auth-input" id="auth-password" type="password" required minlength="4" placeholder="••••••••">
+                            </div>
+                            <button class="auth-submit-btn" type="submit" id="auth-submit-btn">
+                                ${authMode === 'register' ? T('إنشاء الحساب والدخول', 'Create Account') : T('تسجيل الدخول', 'Sign In')}
+                            </button>
+                        </form>
+
+                        <div class="auth-divider">${T('أو', 'OR')}</div>
+
+                        <button class="visitor-btn" type="button" onclick="continueAsVisitor()">
+                            ${icon('compass')}
+                            <span>${T('المتابعة كزائر (بدون تسجيل)', 'Continue as Visitor (Guest)')}</span>
+                        </button>
+
+                        <div class="demo-hint">
+                            <span>${T('حسابات تجريبية سريعة:', 'Quick Demo Accounts:')}</span>
+                            <div style="display:flex;gap:6px;">
+                                <button type="button" class="demo-quick-btn" onclick="fillDemoCreds('admin','admin123')">Admin</button>
+                                <button type="button" class="demo-quick-btn" onclick="fillDemoCreds('explorer','user123')">User</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `;
+            host.hidden = false;
+        }
+
+        async function submitAuthForm(e) {
+            e.preventDefault();
+            const btn = $id('auth-submit-btn');
+            if (btn) btn.disabled = true;
+
+            try {
+                let url = '/api/auth/login';
+                let payload = {};
+                if (authMode === 'register') {
+                    url = '/api/auth/register';
+                    payload = {
+                        full_name: $id('auth-fullname')?.value.trim() || '',
+                        username: $id('auth-username')?.value.trim() || '',
+                        email: $id('auth-email')?.value.trim() || '',
+                        password: $id('auth-password')?.value || ''
+                    };
+                } else {
+                    payload = {
+                        identifier: $id('auth-identifier')?.value.trim() || '',
+                        password: $id('auth-password')?.value || ''
+                    };
+                }
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    renderAuthModal(data.error || T('فشل تسجيل الدخول', 'Authentication failed'));
+                    return;
+                }
+
+                currentUser = data.user;
+                localStorage.setItem('atharna_visitor_ack', '1');
+                closeAuthModal();
+                showToast(
+                    currentUser.role === 'admin'
+                        ? T(`أهلاً بك يا أدمن ${currentUser.full_name}`, `Welcome Admin ${currentUser.full_name}`)
+                        : T(`أهلاً بك يا ${currentUser.full_name}!`, `Welcome ${currentUser.full_name}!`)
+                );
+
+                // Refresh posts visibility for this user
+                try {
+                    const pRes = await fetch('/api/posts');
+                    if (pRes.ok) communityPosts = await pRes.json();
+                } catch (_) {}
+
+                if (currentUser.role === 'admin') {
+                    navigate('admin');
+                } else {
+                    renderWorkspace();
+                }
+            } catch (err) {
+                renderAuthModal(T('تعذر الاتصال بالسيرفر', 'Server connection error'));
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function continueAsVisitor() {
+            try {
+                const res = await fetch('/api/auth/visitor', { method: 'POST' });
+                const data = await res.json();
+                if (data && data.user) currentUser = data.user;
+            } catch (_) {
+                currentUser = { user_id: 'visitor', username: 'Visitor', full_name: T('زائر', 'Visitor'), role: 'visitor' };
+            }
+            localStorage.setItem('atharna_visitor_ack', '1');
+            closeAuthModal();
+            showToast(T('تم الدخول كزائر — يمكنك الاستكشاف والمسح بحرية', 'Browsing as Visitor'));
+            renderWorkspace();
+        }
+
+        async function logoutAccount() {
+            try {
+                const res = await fetch('/api/auth/logout', { method: 'POST' });
+                const data = await res.json();
+                currentUser = data.user || { user_id: 'visitor', username: 'Visitor', full_name: T('زائر', 'Visitor'), role: 'visitor' };
+            } catch (_) {
+                currentUser = { user_id: 'visitor', username: 'Visitor', full_name: T('زائر', 'Visitor'), role: 'visitor' };
+            }
+            closeAuthModal();
+            if (currentView === 'admin') currentView = 'camera';
+            try {
+                const pRes = await fetch('/api/posts');
+                if (pRes.ok) communityPosts = await pRes.json();
+            } catch (_) {}
+            showToast(T('تم تسجيل الخروج بنجاح', 'Signed out successfully'));
+            renderWorkspace();
+        }
+
+        async function loadAdminOverview() {
+            if (currentUser?.role !== 'admin') return;
+            adminLoading = true;
+            if (currentView === 'admin') renderWorkspace();
+            try {
+                const res = await fetch('/api/admin/overview');
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    adminOverview = data;
+                } else {
+                    showToast(data.error || T('فشل تحميل لوحة التحكم', 'Failed to load admin dashboard'));
+                }
+            } catch (e) {
+                showToast(T('خطأ في الاتصال بلوحة التحكم', 'Admin overview connection error'));
+            } finally {
+                adminLoading = false;
+                if (currentView === 'admin') renderWorkspace();
+            }
+        }
+
+        function switchAdminTab(tab) {
+            adminTab = tab;
+            if (currentView === 'admin') renderWorkspace();
+        }
+
+        function setAdminPostFilter(f) {
+            adminPostFilter = f;
+            if (currentView === 'admin') renderWorkspace();
+        }
+
+        async function adminSetPostStatus(postId, status) {
+            try {
+                const res = await fetch(`/api/admin/posts/${encodeURIComponent(postId)}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(status === 'approved' ? T('تم قبول الحكاية ونشرها!', 'Story approved & published!') : T('تم رفض الحكاية', 'Story rejected'));
+                    await loadAdminOverview();
+                    const pRes = await fetch('/api/posts');
+                    if (pRes.ok) communityPosts = await pRes.json();
+                } else {
+                    showToast(data.error || 'Error');
+                }
+            } catch (e) {
+                showToast(T('فشل تحديث الحالة', 'Update failed'));
+            }
+        }
+
+        async function adminDeletePost(postId) {
+            try {
+                const res = await fetch(`/api/admin/posts/${encodeURIComponent(postId)}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast(T('تم حذف الحكاية', 'Story deleted'));
+                    await loadAdminOverview();
+                    const pRes = await fetch('/api/posts');
+                    if (pRes.ok) communityPosts = await pRes.json();
+                }
+            } catch (_) {}
+        }
+
+        async function adminSetCandidateStatus(candId, status) {
+            try {
+                const res = await fetch(`/api/training-candidates/${encodeURIComponent(candId)}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(status === 'approved' ? T('تم قبول الأثر وإضافته للنظام!', 'Candidate approved & registered!') : T('تم رفض الترشيح', 'Candidate rejected'));
+                    await loadAdminOverview();
+                } else {
+                    showToast(data.error || 'Error');
+                }
+            } catch (_) {
+                showToast(T('فشل تحديث الترشيح', 'Failed to update candidate'));
+            }
+        }
+
+        async function adminUpdateUser(userId, updates) {
+            try {
+                const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(T('تم تحديث بيانات المستخدم', 'User updated'));
+                    await loadAdminOverview();
+                } else {
+                    showToast(data.error || 'Error');
+                }
+            } catch (_) {}
+        }
+
+        function formatAdminTime(ts) {
+            if (!ts) return '—';
+            try {
+                const d = new Date(ts);
+                if (isNaN(d.getTime())) return String(ts);
+                return d.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            } catch (_) { return String(ts); }
+        }
+
+        function renderAdminView() {
+            const ov = adminOverview;
+            const stats = ov?.stats || { total_users: 0, total_scans: 0, visitor_scans: 0, total_posts: 0, pending_posts: 0, pending_candidates: 0, total_pending: 0 };
+            const logs = ov?.activity_logs || [];
+            const scans = ov?.scans || [];
+            const posts = ov?.posts || [];
+            const candidates = ov?.candidates || [];
+            const users = ov?.users || [];
+
+            const filteredPosts = adminPostFilter === 'all'
+                ? posts
+                : posts.filter(p => (p.status || 'approved') === adminPostFilter);
+
+            let panelHtml = '';
+            if (adminLoading && !ov) {
+                panelHtml = `<div style="text-align:center;padding:42px;color:#cfc6b8;">${T('جاري تحميل بيانات لوحة التحكم…', 'Loading Admin Dashboard…')}</div>`;
+            } else if (adminTab === 'activity') {
+                panelHtml = logs.length === 0
+                    ? `<div style="text-align:center;padding:32px;color:#8f8679;">${T('لا يوجد نشاط مسجل بعد. جرّب عمل Scan أو كتابة حكاية!', 'No activity recorded yet.')}</div>`
+                    : `<div class="admin-list">${logs.map(l => `
+                        <div class="admin-item-card">
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <span class="role-chip ${escapeHtml(l.role || 'visitor')}">${escapeHtml(l.role || 'visitor')}</span>
+                                    <strong style="color:var(--gold)">${escapeHtml(l.full_name || l.username || 'Visitor')}</strong>
+                                    <span style="color:#8f8679;font-size:12px;">@${escapeHtml(l.username || 'visitor')}</span>
+                                    <span class="status-pill pending" style="text-transform:none;">${escapeHtml(l.action_type)}</span>
+                                </div>
+                                <div style="font-size:13.5px;color:#ece4d8;">${escapeHtml(l.details)}</div>
+                            </div>
+                            <span style="font-size:11.5px;color:#8f8679;">${formatAdminTime(l.createdAt)}</span>
+                        </div>
+                    `).join('')}</div>`;
+            } else if (adminTab === 'posts') {
+                panelHtml = `
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+                        ${[['all', 'الكل', 'All'], ['pending', 'قيد المراجعة', 'Pending'], ['approved', 'مقبول', 'Approved'], ['rejected', 'مرفوض', 'Rejected']].map(([k, ar, en]) => `
+                            <button class="btn-neutral" style="${adminPostFilter === k ? 'background:var(--gold);color:var(--ink);' : ''}" onclick="setAdminPostFilter('${k}')">${T(ar, en)}</button>
+                        `).join('')}
+                    </div>
+                    ${filteredPosts.length === 0
+                        ? `<div style="text-align:center;padding:32px;color:#8f8679;">${T('لا توجد حكايات في هذا التصنيف', 'No stories in this filter')}</div>`
+                        : `<div class="admin-list">${filteredPosts.map(p => {
+                            const st = p.status || 'approved';
+                            const pid = p.post_id || p._id;
+                            return `
+                                <div class="admin-item-card">
+                                    <div style="flex:1;min-width:240px;">
+                                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                                            <strong style="color:var(--gold)">${escapeHtml(p.author || 'Explorer')}</strong>
+                                            ${p.username ? `<span style="font-size:12px;color:#8f8679;">@${escapeHtml(p.username)}</span>` : ''}
+                                            <span class="status-pill ${st}">${st}</span>
+                                            <span style="font-size:11.5px;color:#8f8679;">${formatAdminTime(p.createdAt)}</span>
+                                        </div>
+                                        <p style="font-size:14px;color:var(--paper);line-height:1.55;">${escapeHtml(p.content)}</p>
+                                    </div>
+                                    <div class="admin-actions">
+                                        ${st !== 'approved' ? `<button class="btn-accept" onclick="adminSetPostStatus('${escapeHtml(pid)}','approved')">${T('قبول', 'Accept')}</button>` : ''}
+                                        ${st !== 'rejected' ? `<button class="btn-reject" onclick="adminSetPostStatus('${escapeHtml(pid)}','rejected')">${T('رفض', 'Reject')}</button>` : ''}
+                                        <button class="btn-neutral" onclick="adminDeletePost('${escapeHtml(pid)}')">${T('حذف', 'Delete')}</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}</div>`
+                    }
+                `;
+            } else if (adminTab === 'scans') {
+                const pendingCands = candidates.filter(c => c.status === 'pending');
+                panelHtml = `
+                    <h3 style="color:var(--gold);font-size:15px;margin-bottom:10px;">${T('ترشيحات المعالم الجديدة بانتظار القبول', 'Pending AI Landmark Candidates')} (${pendingCands.length})</h3>
+                    ${pendingCands.length === 0
+                        ? `<div style="padding:14px;border-radius:12px;background:rgba(255,255,255,0.03);color:#8f8679;margin-bottom:18px;font-size:13px;">${T('لا توجد ترشيحات معلقة حالياً.', 'No pending AI candidates right now.')}</div>`
+                        : `<div class="admin-list" style="margin-bottom:22px;">${pendingCands.map(c => `
+                            <div class="admin-item-card">
+                                <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:240px;">
+                                    ${c.imagePath ? `<img class="admin-cand-thumb" src="/${escapeHtml(c.imagePath)}" alt="">` : ''}
+                                    <div>
+                                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                            <strong style="color:var(--gold)">${escapeHtml(c.suggestedLandmark || 'Unknown')}</strong>
+                                            <span class="status-pill pending">${c.confidence || 85}%</span>
+                                        </div>
+                                        <div style="font-size:12px;color:#cfc6b8;margin-top:3px;">
+                                            ${T('تم المسح بواسطة:', 'Scanned by:')} <strong>@${escapeHtml(c.scannedByUsername || 'Visitor')}</strong> (${escapeHtml(c.scannedByRole || 'visitor')})
+                                        </div>
+                                        <div style="font-size:12px;color:#8f8679;margin-top:2px;">${escapeHtml((c.description || '').slice(0, 120))}</div>
+                                    </div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-accept" onclick="adminSetCandidateStatus('${escapeHtml(c._id)}','approved')">${T('قبول وإضافة', 'Accept')}</button>
+                                    <button class="btn-reject" onclick="adminSetCandidateStatus('${escapeHtml(c._id)}','rejected')">${T('رفض', 'Reject')}</button>
+                                </div>
+                            </div>
+                        `).join('')}</div>`
+                    }
+
+                    <h3 style="color:var(--gold);font-size:15px;margin-bottom:10px;">${T('سجل المسح الكامل (مين عمل Scan لإيه)', 'Scan History (Who Scanned What)')} (${scans.length})</h3>
+                    ${scans.length === 0
+                        ? `<div style="padding:20px;text-align:center;color:#8f8679;">${T('لم يتم تسجيل عمليات مسح بعد.', 'No scans logged yet.')}</div>`
+                        : `<div class="admin-list">${scans.map(s => `
+                            <div class="admin-item-card">
+                                <div style="display:flex;flex-direction:column;gap:4px;">
+                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                        <span class="role-chip ${escapeHtml(s.role || 'visitor')}">${escapeHtml(s.role || 'visitor')}</span>
+                                        <strong style="color:var(--paper)">${escapeHtml(s.full_name || s.username || 'Visitor')}</strong>
+                                        <span style="color:#8f8679;font-size:12px;">@${escapeHtml(s.username || 'visitor')}</span>
+                                        <span style="color:var(--gold);font-weight:700;">→ ${escapeHtml(s.detected_name || 'Scene')}</span>
+                                    </div>
+                                    <div style="font-size:12px;color:#a89f91;">
+                                        ${T('الدقة:', 'Confidence:')} ${s.confidence || 0}% · ${T('الطريقة:', 'Method:')} ${escapeHtml(s.method || 'AI')}
+                                    </div>
+                                </div>
+                                <span style="font-size:11.5px;color:#8f8679;">${formatAdminTime(s.createdAt)}</span>
+                            </div>
+                        `).join('')}</div>`
+                    }
+                `;
+            } else if (adminTab === 'users') {
+                panelHtml = users.length === 0
+                    ? `<div style="text-align:center;padding:32px;color:#8f8679;">${T('لا يوجد مستخدمون مسجلون.', 'No registered users.')}</div>`
+                    : `<div class="admin-list">${users.map(u => `
+                        <div class="admin-item-card">
+                            <div>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <strong style="color:var(--gold)">${escapeHtml(u.full_name || u.username)}</strong>
+                                    <span style="color:#8f8679;font-size:12px;">@${escapeHtml(u.username)}</span>
+                                    <span class="role-chip ${escapeHtml(u.role)}">${escapeHtml(u.role)}</span>
+                                    <span class="status-pill ${u.status === 'active' ? 'approved' : 'rejected'}">${escapeHtml(u.status)}</span>
+                                </div>
+                                <div style="font-size:12px;color:#cfc6b8;margin-top:4px;">
+                                    ${escapeHtml(u.email || '—')} · ${T('مسح:', 'Scans:')} ${u.scan_count || 0} · ${T('حكايات:', 'Stories:')} ${u.post_count || 0}
+                                </div>
+                            </div>
+                            ${u.user_id !== currentUser.user_id ? `
+                                <div class="admin-actions">
+                                    <button class="btn-neutral" onclick="adminUpdateUser('${escapeHtml(u.user_id)}',{role:'${u.role === 'admin' ? 'user' : 'admin'}'})">
+                                        ${u.role === 'admin' ? T('تحويل لمستخدم', 'Make User') : T('ترقية لأدمن', 'Make Admin')}
+                                    </button>
+                                    <button class="${u.status === 'active' ? 'btn-reject' : 'btn-accept'}" onclick="adminUpdateUser('${escapeHtml(u.user_id)}',{status:'${u.status === 'active' ? 'suspended' : 'active'}'})">
+                                        ${u.status === 'active' ? T('إيقاف', 'Suspend') : T('تفعيل', 'Activate')}
+                                    </button>
+                                </div>
+                            ` : `<span style="font-size:12px;color:var(--gold);">${T('حسابك الحالي', 'Current You')}</span>`}
+                        </div>
+                    `).join('')}</div>`;
+            }
+
+            return `
+                <div class="admin-shell">
+                    <div class="admin-hero">
+                        <div>
+                            <h1>${T('لوحة تحكم الأدمن — أثرنا', 'Atharna Admin Command Center')}</h1>
+                            <p>${T('متابعة فورية لكل من قام بالمسح أو نشر الحكايات وقبول الترشيحات', 'Monitor user & visitor scans, moderate stories, approve AI candidates, and audit activity')}</p>
+                        </div>
+                        <button class="auth-submit-btn" style="width:auto;margin:0;padding:10px 18px;" onclick="loadAdminOverview()">
+                            ${T('تحديث البيانات ↻', 'Refresh Data ↻')}
+                        </button>
+                    </div>
+
+                    <div class="admin-kpi-grid">
+                        <div class="admin-kpi-card">
+                            <span class="admin-kpi-label">${T('المستخدمون المسجلون', 'Registered Users')}</span>
+                            <span class="admin-kpi-val">${stats.total_users}</span>
+                            <span class="admin-kpi-sub">${T('حسابات نشطة', 'Active accounts')}</span>
+                        </div>
+                        <div class="admin-kpi-card">
+                            <span class="admin-kpi-label">${T('إجمالي عمليات المسح', 'Total AI Scans')}</span>
+                            <span class="admin-kpi-val">${stats.total_scans}</span>
+                            <span class="admin-kpi-sub">${T('منها للزوار:', 'Visitor scans:')} ${stats.visitor_scans}</span>
+                        </div>
+                        <div class="admin-kpi-card">
+                            <span class="admin-kpi-label">${T('بانتظار الموافقة', 'Pending Approvals')}</span>
+                            <span class="admin-kpi-val">${stats.total_pending}</span>
+                            <span class="admin-kpi-sub">${stats.pending_posts} ${T('حكاية', 'posts')} · ${stats.pending_candidates} ${T('ترشيح', 'AI')}</span>
+                        </div>
+                        <div class="admin-kpi-card">
+                            <span class="admin-kpi-label">${T('إجمالي الحكايات', 'Total Stories')}</span>
+                            <span class="admin-kpi-val">${stats.total_posts}</span>
+                            <span class="admin-kpi-sub">${T('مشاركات المجتمع', 'Community posts')}</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-subtabs">
+                        <button class="admin-subtab ${adminTab === 'activity' ? 'active' : ''}" onclick="switchAdminTab('activity')">
+                            ${T('سجل النشاط', 'Activity Log')} <span class="admin-badge-count">${logs.length}</span>
+                        </button>
+                        <button class="admin-subtab ${adminTab === 'posts' ? 'active' : ''}" onclick="switchAdminTab('posts')">
+                            ${T('مراجعة الحكايات', 'Stories Moderation')} <span class="admin-badge-count">${stats.pending_posts}</span>
+                        </button>
+                        <button class="admin-subtab ${adminTab === 'scans' ? 'active' : ''}" onclick="switchAdminTab('scans')">
+                            ${T('المسح والترشيحات', 'Scans & AI')} <span class="admin-badge-count">${scans.length}</span>
+                        </button>
+                        <button class="admin-subtab ${adminTab === 'users' ? 'active' : ''}" onclick="switchAdminTab('users')">
+                            ${T('المستخدمون', 'Users')} <span class="admin-badge-count">${users.length}</span>
+                        </button>
+                    </div>
+
+                    <div class="admin-panel">
+                        ${panelHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
            BOOTSTRAP: INITIAL DATA & SOCKET.IO
         ══════════════════════════════════════════════════════════════════ */
         async function loadInitialData() {
@@ -2952,15 +3953,27 @@
                 });
                 socket.on('new_post', data => {
                     if (data && data.post) {
-                        communityPosts.unshift(data.post);
+                        if (!communityPosts.some(p => p.post_id === data.post.post_id)) {
+                            communityPosts.unshift(data.post);
+                        }
                         if (currentView === 'stories') renderWorkspace();
-                        showToast(T('حكاية جديدة شاركها زائر للتو!', 'A visitor just shared a new story!'));
+                        showToast(T('حكاية جديدة تم نشرها للتو!', 'A new story was just published!'));
+                    }
+                });
+                socket.on('admin_activity', entry => {
+                    if (currentUser?.role === 'admin' && currentView === 'admin') {
+                        loadAdminOverview();
                     }
                 });
             }
 
             // Initial render
             renderWorkspace();
+
+            // Show role selection / login modal on first visit if browsing as unacknowledged visitor
+            if (currentUser?.role === 'visitor' && !localStorage.getItem('atharna_visitor_ack')) {
+                setTimeout(() => openAuthModal('login'), 350);
+            }
 
             // Auto-start camera if permissions already granted
             if (navigator.permissions && navigator.permissions.query) {

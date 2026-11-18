@@ -46,9 +46,11 @@ import numpy as np
 from PIL import Image
 import io
 
-from flask import Flask, request, jsonify, render_template, send_from_directory, send_file
+from flask import Flask, request, jsonify, render_template, send_from_directory, send_file, session
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 from bson import ObjectId, json_util
 import pymongo
 import yaml
@@ -56,7 +58,10 @@ import datetime
 import urllib.request
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "atharna-heritage-secret-2026-x9k2m")
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
+CORS(app, supports_credentials=True)
 
 # Serve uploads explicitly
 from flask import send_from_directory
@@ -199,15 +204,25 @@ except Exception as e:
                         filtered.append(d)
                 results = filtered
             
-            # Allow chaining .sort()
+            # Allow chaining .sort() and .limit()
             class MockCursor(list):
-                def sort(self, *s_args, **s_kwargs):
+                def sort(self, key=None, direction=1, *s_args, **s_kwargs):
+                    if isinstance(key, str):
+                        try:
+                            return MockCursor(sorted(self, key=lambda x: str(x.get(key, "")), reverse=(direction == -1)))
+                        except Exception:
+                            return self
                     return self
+                def limit(self, n):
+                    return MockCursor(self[:n])
             return MockCursor(results)
             
         def find_one(self, query=None, *args, **kwargs):
             res = self.find(query)
             return res[0] if len(res) > 0 else None
+
+        def count_documents(self, query=None):
+            return len(self.find(query))
             
         def insert_one(self, doc):
             doc_copy = dict(doc)
@@ -215,6 +230,13 @@ except Exception as e:
                 doc_copy["_id"] = ObjectId()
             self.data.append(doc_copy)
             return type('obj', (object,), {'inserted_id': doc_copy["_id"]})
+
+        def delete_one(self, query):
+            doc = self.find_one(query)
+            if doc:
+                self.data.remove(doc)
+                return type('obj', (object,), {'deleted_count': 1})
+            return type('obj', (object,), {'deleted_count': 0})
             
         def delete_many(self, query):
             count = len(self.data)
@@ -251,15 +273,112 @@ except Exception as e:
             {"object_id": "O007", "name": "Karnak Hypostyle Hall", "name_ar": "بهو الأساطين بمعبد الكرنك", "class_name": "Karnak-Hall", "location_id": "L005", "image_url": "/static/images/image18.jpeg", "category": "landmarks", "description_ar": "أكبر قاعة أعمدة في العالم القديم تضم 134 عموداً أسطوانياً شاهقاً بنقوش فرعونية بديعة."}
         ]),
         "posts": MockCollection([
-            {"post_id": "P001", "content": "The Khafre Pyramid stands 136 meters tall!", "location_id": "L001", "object_id": "O001", "author": "Heritage Explorer"},
-            {"post_id": "P002", "content": "The Khafre Pyramid is amazing!", "location_id": "L001", "object_id": "O001", "author": "Hassan Mostafa"},
-            {"post_id": "P003", "content": "Beautiful view of the Sphinx at sunset!", "location_id": "L001", "object_id": "O003", "author": "Sara Ahmed"},
-            {"post_id": "P004", "content": "The Mask of Tutankhamun is incredible — crafted in solid gold!", "location_id": "L002", "object_id": "O002", "author": "Archaeologist Dr. Ali"},
-            {"post_id": "P005", "content": "The Great Pyramid of Khufu was built around 2560 BCE.", "location_id": "L001", "object_id": "O004", "author": "Heritage Explorer"},
-            {"post_id": "P006", "content": "Great Pyramid is the oldest of the Seven Wonders of the World!", "location_id": "L001", "object_id": "O004", "author": "Tour Guide Mahmoud"}
+            {"post_id": "P001", "content": "The Khafre Pyramid stands 136 meters tall!", "location_id": "L001", "object_id": "O001", "author": "Heritage Explorer", "status": "approved"},
+            {"post_id": "P002", "content": "The Khafre Pyramid is amazing!", "location_id": "L001", "object_id": "O001", "author": "Hassan Mostafa", "status": "approved"},
+            {"post_id": "P003", "content": "Beautiful view of the Sphinx at sunset!", "location_id": "L001", "object_id": "O003", "author": "Sara Ahmed", "status": "approved"},
+            {"post_id": "P004", "content": "The Mask of Tutankhamun is incredible — crafted in solid gold!", "location_id": "L002", "object_id": "O002", "author": "Archaeologist Dr. Ali", "status": "approved"},
+            {"post_id": "P005", "content": "The Great Pyramid of Khufu was built around 2560 BCE.", "location_id": "L001", "object_id": "O004", "author": "Heritage Explorer", "status": "approved"},
+            {"post_id": "P006", "content": "Great Pyramid is the oldest of the Seven Wonders of the World!", "location_id": "L001", "object_id": "O004", "author": "Tour Guide Mahmoud", "status": "approved"}
         ]),
-        "training_candidates": MockCollection([])
+        "training_candidates": MockCollection([]),
+        "users": MockCollection([]),
+        "scans": MockCollection([]),
+        "activity_logs": MockCollection([])
     })
+
+# ─── User Roles, Authentication & Activity Audit Helpers ──────────────────────
+def _now_ts():
+    return datetime.datetime.now(datetime.timezone.utc) if use_mongodb else time.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def _seed_default_users():
+    try:
+        if not db.users.find_one({"role": "admin"}):
+            db.users.insert_one({
+                "user_id": "U_ADMIN",
+                "username": "admin",
+                "full_name": "مدير المنصة (Admin)",
+                "email": "admin@atharna.com",
+                "password_hash": generate_password_hash("admin123"),
+                "role": "admin",
+                "status": "active",
+                "createdAt": _now_ts()
+            })
+            print("[INFO] Seeded default admin account: admin / admin123")
+        if not db.users.find_one({"username": "explorer"}):
+            db.users.insert_one({
+                "user_id": "U_EXPLORER",
+                "username": "explorer",
+                "full_name": "مستكشف أثرنا",
+                "email": "user@atharna.com",
+                "password_hash": generate_password_hash("user123"),
+                "role": "user",
+                "status": "active",
+                "createdAt": _now_ts()
+            })
+    except Exception as e:
+        print(f"[WARNING] Could not seed default users: {e}")
+
+_seed_default_users()
+
+def get_current_user():
+    """Return the currently authenticated user dict, or a visitor profile."""
+    uid = session.get("user_id")
+    if uid and uid != "visitor":
+        try:
+            u = db.users.find_one({"user_id": uid})
+            if u and u.get("status", "active") == "active":
+                return {
+                    "user_id": u["user_id"],
+                    "username": u["username"],
+                    "full_name": u.get("full_name", u["username"]),
+                    "email": u.get("email", ""),
+                    "role": u.get("role", "user"),
+                    "status": u.get("status", "active")
+                }
+        except Exception:
+            pass
+    return {
+        "user_id": "visitor",
+        "username": "Visitor",
+        "full_name": "زائر / Visitor",
+        "email": "",
+        "role": "visitor",
+        "status": "active"
+    }
+
+def admin_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user = get_current_user()
+        if user.get("role") != "admin":
+            return jsonify({"error": "Admin access required", "require_admin": True}), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
+def log_activity(user, action_type, target_type, target_id, details, extra=None):
+    """Record an audit log entry in MongoDB and broadcast to admin dashboard."""
+    try:
+        u = user or get_current_user()
+        entry = {
+            "log_id": f"LOG{int(time.time() * 1000) % 100000000}",
+            "user_id": u.get("user_id", "visitor"),
+            "username": u.get("username", "Visitor"),
+            "full_name": u.get("full_name", "Visitor"),
+            "role": u.get("role", "visitor"),
+            "action_type": action_type,
+            "target_type": target_type,
+            "target_id": str(target_id) if target_id else "",
+            "details": details,
+            "extra": extra or {},
+            "createdAt": _now_ts()
+        }
+        db.activity_logs.insert_one(entry)
+        try:
+            socketio.emit("admin_activity", serialize_mongo(entry))
+        except Exception:
+            pass
+    except Exception as e:
+        print(f"[WARNING] Failed to log activity: {e}")
 
 # ─── Load YOLO Models (Memory-Optimized: ONLY on local machines with sufficient RAM) ────
 is_cloud_restricted = bool(
@@ -1037,7 +1156,8 @@ def index():
     return render_template(
         'index.html',
         locations_json=json.dumps(locs, ensure_ascii=False),
-        objects_json=json.dumps(objs, ensure_ascii=False)
+        objects_json=json.dumps(objs, ensure_ascii=False),
+        current_user_json=json.dumps(get_current_user(), ensure_ascii=False)
     )
 
 @app.route('/api/detect/result/<job_id>', methods=['GET'])
@@ -1137,6 +1257,30 @@ def api_segment_artifacts():
                 with open(obj_path, "rb") as of:
                     item_data["image_base64"] = "data:image/png;base64," + base64.b64encode(of.read()).decode('utf-8')
             items_enhanced.append(item_data)
+
+        try:
+            user = get_current_user()
+            detected_labels = [it.get("label", "Artifact") for it in items_enhanced]
+            summary_label = ", ".join(detected_labels[:3]) if detected_labels else "Museum Artifact"
+            scan_doc = {
+                "scan_id": f"SCN{int(time.time() * 1000) % 100000000}",
+                "user_id": user["user_id"],
+                "username": user["username"],
+                "full_name": user["full_name"],
+                "role": user["role"],
+                "detected_name": summary_label,
+                "class_name": summary_label,
+                "confidence": 90,
+                "method": "FastSAM Artifact Pipeline",
+                "pipeline": "artifact_segmentation",
+                "filename": file.filename,
+                "num_items": len(items_enhanced),
+                "createdAt": _now_ts()
+            }
+            db.scans.insert_one(scan_doc)
+            log_activity(user, "scan", "artifact", scan_doc["scan_id"], f"Scanned museum artifacts: {summary_label} ({len(items_enhanced)} items)")
+        except Exception as log_err:
+            print(f"[WARNING] Scan log error: {log_err}")
 
         return jsonify({
             'success': True,
@@ -1336,14 +1480,21 @@ def api_objects():
 
 @app.route('/api/posts', methods=['GET', 'POST'])
 def api_posts():
+    user = get_current_user()
     if request.method == 'POST':
         try:
+            if user.get("role") == "visitor":
+                return jsonify({
+                    'error': 'Please register or login to publish stories',
+                    'require_auth': True
+                }), 403
+
             data = request.get_json() or {}
             content = data.get('content', '').strip()
             if not content:
                 return jsonify({'error': 'Post content cannot be empty'}), 400
                 
-            author = data.get('author', 'Heritage Explorer').strip() or 'Heritage Explorer'
+            author = user.get("full_name") or user.get("username") or data.get('author', 'Heritage Explorer')
             object_id = data.get('object_id')
             location_id = data.get('location_id')
             
@@ -1352,29 +1503,36 @@ def api_posts():
                 if obj and "location_id" in obj:
                     location_id = obj["location_id"]
                     
-            rand_id = f"P{int(time.time() % 1000000):06d}"
+            rand_id = f"P{int(time.time() * 1000) % 10000000:07d}"
+            post_status = "approved" if user.get("role") == "admin" else "pending"
             post_doc = {
                 "post_id": rand_id,
+                "user_id": user.get("user_id"),
+                "username": user.get("username"),
+                "role": user.get("role"),
                 "author": author,
                 "content": content,
                 "location_id": location_id,
                 "object_id": object_id,
-                "createdAt": datetime.datetime.now(datetime.timezone.utc) if use_mongodb else time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                "status": post_status,
+                "createdAt": _now_ts()
             }
             
             db.posts.insert_one(post_doc)
             serialized_post = serialize_mongo(post_doc)
+            log_activity(user, "post_create", "post", rand_id, f"Wrote story: {content[:80]}")
             
-            try:
-                socketio.emit("new_post", {
-                    "post": serialized_post,
-                    "object_id": object_id,
-                    "location_id": location_id
-                })
-            except Exception as se:
-                print(f"[WARNING] SocketIO emit new_post error: {se}")
+            if post_status == "approved":
+                try:
+                    socketio.emit("new_post", {
+                        "post": serialized_post,
+                        "object_id": object_id,
+                        "location_id": location_id
+                    })
+                except Exception as se:
+                    print(f"[WARNING] SocketIO emit new_post error: {se}")
                 
-            return jsonify({'success': True, 'post': serialized_post}), 201
+            return jsonify({'success': True, 'post': serialized_post, 'status': post_status}), 201
         except Exception as e:
             return jsonify({'error': str(e)}), 500
             
@@ -1390,8 +1548,16 @@ def api_posts():
         elif loc_id:
             query["location_id"] = loc_id
             
-        posts = list(db.posts.find(query).sort("createdAt", -1))
-        return jsonify(serialize_mongo(posts))
+        all_posts = list(db.posts.find(query).sort("createdAt", -1))
+        if request.args.get('all') == '1' and user.get("role") == "admin":
+            visible_posts = all_posts
+        else:
+            visible_posts = [
+                p for p in all_posts
+                if p.get("status", "approved") == "approved"
+                or (user.get("role") != "visitor" and p.get("user_id") == user.get("user_id") and p.get("status") != "rejected")
+            ]
+        return jsonify(serialize_mongo(visible_posts))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1528,11 +1694,58 @@ def api_detect():
     # Execute detection directly in the request greenlet (takes ~1.2s: Gemini REST + OpenCV 15ms)
     # This prevents 'greenlet.error: Cannot switch to a different thread' in Eventlet
     job_id = str(uuid.uuid4())
+    user = get_current_user()
     try:
         result = _do_detect_sync(file_bytes, img, filename, mimetype, model_type, lat_form, lng_form)
         if isinstance(result, dict):
             result['job_id'] = job_id
             result['status'] = 'done'
+            try:
+                detected_name = (
+                    result.get('landmark_name')
+                    or result.get('class_name')
+                    or (result.get('detections', [{}])[0].get('class') if result.get('detections') else None)
+                    or result.get('suggested_class')
+                    or "Heritage Scene"
+                )
+                conf_val = result.get('confidence')
+                if conf_val is None and result.get('detections'):
+                    conf_val = result['detections'][0].get('confidence', 0.85)
+                conf_pct = int(round(float(conf_val) * 100)) if conf_val is not None and float(conf_val) <= 1.0 else int(round(float(conf_val or 85)))
+                method_val = result.get('method') or result.get('pipeline') or 'AI Vision'
+                cand_id = result.get('trainingCandidateId')
+                if cand_id:
+                    try:
+                        db.training_candidates.update_one(
+                            {"_id": ObjectId(cand_id)},
+                            {"$set": {
+                                "scannedByUserId": user["user_id"],
+                                "scannedByUsername": user["username"],
+                                "scannedByRole": user["role"]
+                            }}
+                        )
+                    except Exception:
+                        pass
+                scan_doc = {
+                    "scan_id": f"SCN{int(time.time() * 1000) % 100000000}",
+                    "user_id": user["user_id"],
+                    "username": user["username"],
+                    "full_name": user["full_name"],
+                    "role": user["role"],
+                    "detected_name": str(detected_name),
+                    "class_name": str(result.get('class_name') or detected_name),
+                    "confidence": conf_pct,
+                    "method": str(method_val),
+                    "pipeline": str(result.get('pipeline', 'landmark_detection')),
+                    "filename": filename,
+                    "lat": lat_form,
+                    "lng": lng_form,
+                    "createdAt": _now_ts()
+                }
+                db.scans.insert_one(scan_doc)
+                log_activity(user, "scan", "landmark", scan_doc["scan_id"], f"Scanned '{detected_name}' ({conf_pct}% via {method_val})")
+            except Exception as log_err:
+                print(f"[WARNING] Failed to record scan log: {log_err}")
         with _job_lock:
             _job_store[job_id] = {"status": "done", "result": result, "ts": time.time()}
         return jsonify(result)
@@ -2540,7 +2753,14 @@ def api_patch_candidate(id):
                 lng=candidate.get("longitude"),
                 description=candidate.get("description", "")
             )
-                
+
+        log_activity(
+            get_current_user(),
+            f"candidate_{status}",
+            "candidate",
+            id,
+            f"Candidate '{candidate.get('suggestedLandmark', 'Unknown')}' marked as {status}"
+        )
         return jsonify({'success': True, 'message': f'Status updated to {status}.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -2908,6 +3128,258 @@ def api_health():
             'yolo11': _yolo_y11 is not None
         }
     })
+
+# ─── Authentication & Role Management Routes ─────────────────────────────────
+@app.route('/api/auth/me', methods=['GET'])
+def api_auth_me():
+    return jsonify({'success': True, 'user': get_current_user()})
+
+@app.route('/api/auth/register', methods=['POST'])
+def api_auth_register():
+    try:
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip().lower()
+        full_name = (data.get('full_name') or '').strip()
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+
+        if not username or len(username) < 3:
+            return jsonify({'error': 'Username must be at least 3 characters'}), 400
+        if not email or '@' not in email:
+            return jsonify({'error': 'Valid email is required'}), 400
+        if not password or len(password) < 4:
+            return jsonify({'error': 'Password must be at least 4 characters'}), 400
+
+        if db.users.find_one({"username": username}):
+            return jsonify({'error': 'Username already taken'}), 409
+        if db.users.find_one({"email": email}):
+            return jsonify({'error': 'Email already registered'}), 409
+
+        user_id = f"U{int(time.time() * 1000) % 10000000:07d}"
+        user_doc = {
+            "user_id": user_id,
+            "username": username,
+            "full_name": full_name or username,
+            "email": email,
+            "password_hash": generate_password_hash(password),
+            "role": "user",
+            "status": "active",
+            "createdAt": _now_ts()
+        }
+        db.users.insert_one(user_doc)
+
+        session["user_id"] = user_id
+        session["role"] = "user"
+        session["username"] = username
+
+        safe_user = {
+            "user_id": user_id,
+            "username": username,
+            "full_name": user_doc["full_name"],
+            "email": email,
+            "role": "user",
+            "status": "active"
+        }
+        log_activity(safe_user, "register", "user", user_id, f"New user registered: @{username}")
+        return jsonify({'success': True, 'user': safe_user}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_auth_login():
+    try:
+        data = request.get_json() or {}
+        identifier = (data.get('identifier') or data.get('username') or '').strip().lower()
+        password = data.get('password') or ''
+
+        if not identifier or not password:
+            return jsonify({'error': 'Username/email and password are required'}), 400
+
+        u = db.users.find_one({"$or": [{"username": identifier}, {"email": identifier}]})
+        if not u or not check_password_hash(u.get("password_hash", ""), password):
+            return jsonify({'error': 'Invalid username or password'}), 401
+
+        if u.get("status", "active") != "active":
+            return jsonify({'error': 'This account is currently suspended by an administrator'}), 403
+
+        session["user_id"] = u["user_id"]
+        session["role"] = u.get("role", "user")
+        session["username"] = u["username"]
+
+        safe_user = {
+            "user_id": u["user_id"],
+            "username": u["username"],
+            "full_name": u.get("full_name", u["username"]),
+            "email": u.get("email", ""),
+            "role": u.get("role", "user"),
+            "status": u.get("status", "active")
+        }
+        log_activity(safe_user, "login", "user", u["user_id"], f"Signed in as {safe_user['role']}")
+        return jsonify({'success': True, 'user': safe_user})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/auth/logout', methods=['POST'])
+def api_auth_logout():
+    user = get_current_user()
+    if user.get("role") != "visitor":
+        log_activity(user, "logout", "user", user.get("user_id"), f"Signed out (@{user.get('username')})")
+    session.clear()
+    return jsonify({'success': True, 'user': get_current_user()})
+
+@app.route('/api/auth/visitor', methods=['POST'])
+def api_auth_visitor():
+    session.clear()
+    session["role"] = "visitor"
+    return jsonify({'success': True, 'user': get_current_user()})
+
+
+# ─── Admin Dashboard API Routes ──────────────────────────────────────────────
+@app.route('/api/admin/overview', methods=['GET'])
+@admin_required
+def api_admin_overview():
+    try:
+        users_raw = list(db.users.find({}).sort("createdAt", -1))
+        scans_raw = list(db.scans.find({}).sort("createdAt", -1).limit(80))
+        posts_raw = list(db.posts.find({}).sort("createdAt", -1))
+        candidates_raw = list(db.training_candidates.find({}).sort("createdAt", -1))
+        logs_raw = list(db.activity_logs.find({}).sort("createdAt", -1).limit(80))
+
+        # Enrich users without password_hash + counts
+        users_clean = []
+        for u in users_raw:
+            uid = u.get("user_id")
+            users_clean.append({
+                "user_id": uid,
+                "username": u.get("username"),
+                "full_name": u.get("full_name", u.get("username")),
+                "email": u.get("email", ""),
+                "role": u.get("role", "user"),
+                "status": u.get("status", "active"),
+                "scan_count": sum(1 for s in scans_raw if s.get("user_id") == uid),
+                "post_count": sum(1 for p in posts_raw if p.get("user_id") == uid),
+                "createdAt": u.get("createdAt")
+            })
+
+        pending_posts = sum(1 for p in posts_raw if p.get("status") == "pending")
+        pending_cands = sum(1 for c in candidates_raw if c.get("status") == "pending")
+
+        return jsonify({
+            "success": True,
+            "stats": {
+                "total_users": len(users_clean),
+                "total_scans": db.scans.count_documents({}) if hasattr(db.scans, "count_documents") else len(scans_raw),
+                "visitor_scans": sum(1 for s in scans_raw if s.get("role") == "visitor"),
+                "total_posts": len(posts_raw),
+                "pending_posts": pending_posts,
+                "pending_candidates": pending_cands,
+                "total_pending": pending_posts + pending_cands
+            },
+            "users": serialize_mongo(users_clean),
+            "scans": serialize_mongo(scans_raw),
+            "posts": serialize_mongo(posts_raw),
+            "candidates": serialize_mongo(candidates_raw),
+            "activity_logs": serialize_mongo(logs_raw)
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/posts/<post_id>/status', methods=['PATCH'])
+@admin_required
+def api_admin_patch_post(post_id):
+    try:
+        admin_user = get_current_user()
+        data = request.get_json() or {}
+        status = data.get("status")
+        if status not in ["approved", "rejected", "pending"]:
+            return jsonify({'error': 'Invalid status'}), 400
+
+        post = db.posts.find_one({"post_id": post_id})
+        if not post:
+            try:
+                post = db.posts.find_one({"_id": ObjectId(post_id)})
+            except Exception:
+                post = None
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+
+        query = {"post_id": post["post_id"]} if post.get("post_id") else {"_id": post["_id"]}
+        db.posts.update_one(query, {"$set": {"status": status, "reviewedBy": admin_user["username"]}})
+
+        log_activity(
+            admin_user,
+            f"post_{status}",
+            "post",
+            post.get("post_id", post_id),
+            f"Marked story by {post.get('author', 'Unknown')} as {status}"
+        )
+
+        if status == "approved":
+            try:
+                updated_post = db.posts.find_one(query)
+                socketio.emit("new_post", {
+                    "post": serialize_mongo(updated_post),
+                    "object_id": updated_post.get("object_id"),
+                    "location_id": updated_post.get("location_id")
+                })
+            except Exception:
+                pass
+
+        return jsonify({'success': True, 'status': status})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/posts/<post_id>', methods=['DELETE'])
+@admin_required
+def api_admin_delete_post(post_id):
+    try:
+        admin_user = get_current_user()
+        post = db.posts.find_one({"post_id": post_id})
+        if not post:
+            try:
+                post = db.posts.find_one({"_id": ObjectId(post_id)})
+            except Exception:
+                post = None
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+
+        query = {"post_id": post["post_id"]} if post.get("post_id") else {"_id": post["_id"]}
+        db.posts.delete_one(query)
+        log_activity(admin_user, "post_delete", "post", post.get("post_id", post_id), f"Deleted story by {post.get('author', 'Unknown')}")
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/users/<user_id>/role', methods=['PATCH'])
+@admin_required
+def api_admin_update_user(user_id):
+    try:
+        admin_user = get_current_user()
+        if user_id == admin_user.get("user_id"):
+            return jsonify({'error': 'Cannot modify your own admin status'}), 400
+
+        data = request.get_json() or {}
+        updates = {}
+        if data.get("role") in ["user", "admin"]:
+            updates["role"] = data["role"]
+        if data.get("status") in ["active", "suspended"]:
+            updates["status"] = data["status"]
+
+        if not updates:
+            return jsonify({'error': 'No valid updates provided'}), 400
+
+        u = db.users.find_one({"user_id": user_id})
+        if not u:
+            return jsonify({'error': 'User not found'}), 404
+
+        db.users.update_one({"user_id": user_id}, {"$set": updates})
+        log_activity(admin_user, "user_update", "user", user_id, f"Updated @{u.get('username')}: {updates}")
+        return jsonify({'success': True, 'updates': updates})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 # ─── Lazy Model Loading Configuration (Conserves Cloud RAM) ────────────────────
 def _warmup_models():
