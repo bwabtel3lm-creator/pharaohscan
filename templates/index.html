@@ -3376,14 +3376,13 @@
             renderAuthModal();
         }
 
-        async function fillDemoCreds(u, p) {
+        function fillDemoCreds(u, p) {
             authMode = 'login';
             renderAuthModal();
             const idInput = $id('auth-identifier');
             const pwInput = $id('auth-password');
             if (idInput) idInput.value = u;
             if (pwInput) pwInput.value = p;
-            await submitAuthForm({ preventDefault: () => {} });
         }
 
         function renderAuthModal(errorMsg = '') {
@@ -3862,12 +3861,12 @@
                         <div class="admin-kpi-card">
                             <span class="admin-kpi-label">${T('المستخدمون المسجلون', 'Registered Users')}</span>
                             <span class="admin-kpi-val">${stats.total_users}</span>
-                            <span class="admin-kpi-sub">${T('حسابات نشطة', 'Active accounts')}</span>
+                            <span class="admin-kpi-sub">${stats.admin_count || 0} ${T('أدمن', 'Admin')} · ${stats.regular_user_count || 0} ${T('مستخدم', 'User')}</span>
                         </div>
                         <div class="admin-kpi-card">
-                            <span class="admin-kpi-label">${T('إجمالي عمليات المسح', 'Total AI Scans')}</span>
-                            <span class="admin-kpi-val">${stats.total_scans}</span>
-                            <span class="admin-kpi-sub">${T('منها للزوار:', 'Visitor scans:')} ${stats.visitor_scans}</span>
+                            <span class="admin-kpi-label">${T('عمليات المسح والترشيح', 'Scans & AI Candidates')}</span>
+                            <span class="admin-kpi-val">${(stats.total_scans || 0) + (stats.total_candidates || 0)}</span>
+                            <span class="admin-kpi-sub">${stats.total_scans || 0} ${T('مسح مباشر', 'live')} · ${stats.total_candidates || 0} ${T('مرشح', 'candidates')}</span>
                         </div>
                         <div class="admin-kpi-card">
                             <span class="admin-kpi-label">${T('بانتظار الموافقة', 'Pending Approvals')}</span>
@@ -3886,10 +3885,10 @@
                             ${T('سجل النشاط', 'Activity Log')} <span class="admin-badge-count">${logs.length}</span>
                         </button>
                         <button class="admin-subtab ${adminTab === 'posts' ? 'active' : ''}" onclick="switchAdminTab('posts')">
-                            ${T('مراجعة الحكايات', 'Stories Moderation')} <span class="admin-badge-count">${stats.pending_posts}</span>
+                            ${T('مراجعة الحكايات', 'Stories Moderation')} <span class="admin-badge-count">${posts.length}</span>
                         </button>
                         <button class="admin-subtab ${adminTab === 'scans' ? 'active' : ''}" onclick="switchAdminTab('scans')">
-                            ${T('المسح والترشيحات', 'Scans & AI')} <span class="admin-badge-count">${scans.length}</span>
+                            ${T('المسح والترشيحات', 'Scans & AI')} <span class="admin-badge-count">${scans.length + candidates.length}</span>
                         </button>
                         <button class="admin-subtab ${adminTab === 'users' ? 'active' : ''}" onclick="switchAdminTab('users')">
                             ${T('المستخدمون', 'Users')} <span class="admin-badge-count">${users.length}</span>

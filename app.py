@@ -3249,26 +3249,31 @@ def api_admin_overview():
         users_clean = []
         for u in users_raw:
             uid = u.get("user_id")
+            uname = u.get("username")
             users_clean.append({
                 "user_id": uid,
-                "username": u.get("username"),
-                "full_name": u.get("full_name", u.get("username")),
+                "username": uname,
+                "full_name": u.get("full_name", uname),
                 "email": u.get("email", ""),
                 "role": u.get("role", "user"),
                 "status": u.get("status", "active"),
-                "scan_count": sum(1 for s in scans_raw if s.get("user_id") == uid),
-                "post_count": sum(1 for p in posts_raw if p.get("user_id") == uid),
+                "scan_count": sum(1 for s in scans_raw if s.get("user_id") == uid) + sum(1 for c in candidates_raw if c.get("scannedByUserId") == uid),
+                "post_count": sum(1 for p in posts_raw if p.get("user_id") == uid or (uname and p.get("username") == uname)),
                 "createdAt": u.get("createdAt")
             })
 
         pending_posts = sum(1 for p in posts_raw if p.get("status") == "pending")
         pending_cands = sum(1 for c in candidates_raw if c.get("status") == "pending")
+        live_scans_count = db.scans.count_documents({}) if hasattr(db.scans, "count_documents") else len(scans_raw)
 
         return jsonify({
             "success": True,
             "stats": {
                 "total_users": len(users_clean),
-                "total_scans": db.scans.count_documents({}) if hasattr(db.scans, "count_documents") else len(scans_raw),
+                "admin_count": sum(1 for u in users_clean if u.get("role") == "admin"),
+                "regular_user_count": sum(1 for u in users_clean if u.get("role") == "user"),
+                "total_scans": live_scans_count,
+                "total_candidates": len(candidates_raw),
                 "visitor_scans": sum(1 for s in scans_raw if s.get("role") == "visitor"),
                 "total_posts": len(posts_raw),
                 "pending_posts": pending_posts,
