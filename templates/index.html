@@ -1557,10 +1557,13 @@
 
         /* ── Admin Dashboard Luxury Layout ── */
         .admin-shell {
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 26px 24px 60px;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 26px max(24px, calc((100% - 1240px) / 2)) 64px;
             color: var(--paper);
+            background: radial-gradient(circle at top right, rgba(216, 183, 128, 0.08), transparent 45%), var(--ink);
         }
         .admin-hero {
             display: flex;
@@ -1713,6 +1716,39 @@
         @media (max-width: 900px) {
             .admin-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .admin-shell { padding: 16px 14px 48px; }
+        }
+        @media (max-width: 760px) {
+            .header { padding: 0 12px; gap: 8px; }
+            .brand-logo-img { height: 32px; max-width: 110px; }
+            .header-right { gap: 6px; }
+            .header-context { padding: 6px 9px; font-size: 12px; }
+            #place-context-name { display: none; }
+            .account-pill { padding: 4px 8px 4px 6px; font-size: 11.5px; gap: 6px; }
+            .account-avatar { width: 22px; height: 22px; font-size: 11px; }
+            #account-name { max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .role-chip { font-size: 9.5px; padding: 1.5px 5px; }
+            .lang-btn { padding: 6px 10px; font-size: 11.5px; }
+
+            .nav { padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+            .nav button { font-size: 10.5px; padding: 6px 2px; gap: 3px; min-width: 0; }
+            .nav button svg { width: 19px; height: 19px; }
+
+            .admin-shell { padding: 14px 12px 36px; }
+            .admin-hero { padding: 14px 16px; border-radius: 16px; gap: 12px; margin-bottom: 14px; }
+            .admin-hero h1 { font-size: 17px; }
+            .admin-hero p { font-size: 12px; }
+            .admin-hero .auth-submit-btn { width: 100% !important; }
+            .admin-kpi-grid { gap: 10px; margin-bottom: 16px; }
+            .admin-kpi-card { padding: 12px 13px; border-radius: 13px; gap: 4px; }
+            .admin-kpi-label { font-size: 11px; }
+            .admin-kpi-val { font-size: 22px; }
+            .admin-kpi-sub { font-size: 10.5px; }
+            .admin-subtabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 10px; margin-bottom: 14px; }
+            .admin-subtabs::-webkit-scrollbar { display: none; }
+            .admin-subtab { flex: 0 0 auto; padding: 8px 12px; font-size: 12px; }
+            .admin-panel { padding: 12px; border-radius: 14px; }
+            .admin-item-card { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+            .admin-actions { justify-content: flex-start; }
         }
     </style>
 </head>
