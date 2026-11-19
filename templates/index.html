@@ -3376,13 +3376,14 @@
             renderAuthModal();
         }
 
-        function fillDemoCreds(u, p) {
+        async function fillDemoCreds(u, p) {
             authMode = 'login';
             renderAuthModal();
             const idInput = $id('auth-identifier');
             const pwInput = $id('auth-password');
             if (idInput) idInput.value = u;
             if (pwInput) pwInput.value = p;
+            await submitAuthForm({ preventDefault: () => {} });
         }
 
         function renderAuthModal(errorMsg = '') {
